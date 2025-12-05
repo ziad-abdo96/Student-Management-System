@@ -1,0 +1,79 @@
+﻿@model List<Instructor>
+@{
+    ViewData["Title"] = "ShowAll";
+}
+
+<h1 class="mb-4">All Instructors</h1>
+
+
+@if(TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if(TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="al"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <a asp-action="create" class="btn btn-success">New Instructor</a>
+
+    <form asp-action="Search" method="get" class="d-flex">
+        <input type="search" name="name" value="" class="form-control me-2" placeholder="Search by name" />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+</div>
+
+<div class="container">
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Adress</th>
+                    <th>Salary</th>
+                    <th>Course</th>
+                    <th>Department</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                @foreach(Instructor instructor in Model)
+                {
+                    <tr>
+                        <td>@instructor.Id</td>
+                        <td>@instructor.Name</td>
+                        <td>@instructor.Adress</td>
+                        <td>@instructor.Salary</td>
+                        <td>@(instructor.Course?.Name ?? "-")</td>
+                        <td>@(instructor.Department?.Name ?? "-" )</td>
+                        <td>
+                            <form asp-action="Delete" asp-route-id="@instructor.Id" method="post"
+                                  onsubmit="return confirm('Are you sure you want to delete this instructor?')">
+
+                                <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Delete</button>
+                            </form>
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+@if(!Model.Any())
+{
+    <div class="alert alert-warning text-center">
+        No result
+    </div>
+}

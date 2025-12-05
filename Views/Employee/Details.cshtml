@@ -1,0 +1,18 @@
+﻿@using FirstProject.Models.Entities
+@model Employee
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<h2>@Model.Name</h2>
+<h1>@ViewData["Msg"]</h1>
+<h2>@(ViewBag.Temp - 10)</h2>
+
+<select class="form-control">
+    @foreach(var item in ViewBag.Brch)
+    {
+        <option>@item</option>
+    }
+</select>

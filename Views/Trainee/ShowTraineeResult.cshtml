@@ -1,0 +1,47 @@
+﻿@model List<TraineeCourseResultViewModel>
+
+@{
+    ViewData["Title"] = "Trainee Result";
+    var trainee = ViewBag.Trainee;
+}
+
+<h1 class="mb-4">Trainee Result</h1>
+
+<div class="card mb-4" style="max-width: 700px;">
+    <div class="row g-0">
+        <div class="col-md-4">
+            <img src="@trainee.ImageURL" class="img-fluid rounded-start" alt="Trainee Image" />
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+                <h3 class="card-title">@trainee.Name</h3>
+                <p class="card-text"><strong>ID:</strong> @trainee.Id</p>
+                <p class="card-text"><strong>Address:</strong> @trainee.Address</p>
+                <p class="card-text"><strong>Grade:</strong> @trainee.Grade</p>
+                <p class="card-text"><strong>Department:</strong> @trainee.Department.Name</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3>Courses Results</h3>
+
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Course Name</th>
+                <th>Degree</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var result in Model)
+            {
+                <tr>
+                    <td>@result.CourseName</td>
+                    <td>@result.Degree</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

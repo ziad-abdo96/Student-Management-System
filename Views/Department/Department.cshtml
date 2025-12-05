@@ -1,0 +1,51 @@
+﻿@model List<Department>
+
+@{
+    ViewData["Title"] = "Depaartment";
+}
+
+<h1>Department</h1>
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <label class="form-label">select Department</label>
+            <select onchange="GetData()" class="form-select form-select-lg" name="cars" id="cars">
+                @foreach(var department in Model)
+                {
+                    <option onclick="GetData(@department.Id)" value="@department.Id">@department.Name</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="card" id="div1">
+        <div class="card-body">
+            <label class="form-label">Select Employee</label>
+            <select id="div2" class="form-select form-select-lg">
+              
+            </select>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script>
+    function GetData()
+    {
+        var Id = $("#cars").val();
+        var div1 = document.getElementById("div2");
+        div1.innerHTML = "";
+        $.ajax({
+        url: "/Department/Partial/" + Id,
+        success: function(result) {
+              for(let item of result)
+              {
+                  div1.innerHTML += "<option value="+item.Id+">"+item.name+"</option>";
+              }
+            }
+
+        })
+    }
+</script>

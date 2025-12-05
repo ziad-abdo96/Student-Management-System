@@ -1,0 +1,43 @@
+﻿@model List<Employee> 
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<a asp-action="Create" class="btn btn-success my-3">New</a>
+
+<table class="table table-hover table-bordered">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Salary</th>
+        <th></th>
+    </tr>
+
+    @foreach(var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.Name</td>
+            <td>@item.Salary</td>
+            <td> <a href="/Employee/Edit/@item.Id">Edit</a> </td>
+            <td> <a href="/Employee/EmployeePartial/@item.Id" onclick="GetData(@item.Id)">Details</a> </td>
+        </tr>
+    }
+</table>
+
+
+<script src="~/lib/jquery/dist/jquery.js"></script>
+
+<script>
+    function GetData(ID){
+        event.preventDefault();
+        $.ajax({
+            url: "/Employee/EmployeePartial/" + ID,
+            success: function(r) {
+               console.log(r)
+            }
+        });
+    };
+</script>

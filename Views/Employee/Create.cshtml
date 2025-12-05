@@ -1,0 +1,45 @@
+﻿@model EmpWithDepartListViewModel
+
+@{
+    ViewData["Title"] = "Create";
+    SelectList selectListItems = new SelectList(Model.Departments, "Id", "Name");
+}
+
+<h1>Create</h1> 
+
+<form asp-action="Create">
+    <div>
+        <label asp-for="Name"></label>
+        <input class="form-control" asp-for="Name"/>
+    </div>
+
+     <div>
+        <label asp-for="Salary"></label>
+        <input class="form-control" asp-for="Salary"/>
+    </div>
+
+     <div>
+        <label asp-for="JobTitle"></label>
+        <input class="form-control" asp-for="JobTitle"/>
+    </div>
+
+     <div>
+        <label asp-for="Address"></label>
+        <input class="form-control" asp-for="Address"/>
+    </div>
+     <div>
+        <label asp-for="ImageURL"></label>
+        <input class="form-control" asp-for="ImageURL"/>
+    </div>
+     <div>
+        <label asp-for="DepartmentID"></label>
+
+       <select class="form-control" asp-items="@selectListItems" asp-for="DepartmentID">
+           <option value="0">--Select Department--</option>
+       </select>
+
+    </div>
+    <input type="submit" value="Create" class="btn btn-success my-3" />
+</form>
+
+<a asp-action="Index">Back To List</a>
