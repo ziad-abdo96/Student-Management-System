@@ -2,6 +2,7 @@ using FirstProject.Data;
 using FirstProject.Models.Entities;
 using FirstProject.Repositories.Implementations;
 using FirstProject.Repositories.Interfaces;
+using FirstProject.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,7 @@ namespace FirstProject
 			// Add services to the container.
 			builder.Services.AddControllersWithViews();
 			builder.Services.AddSession();//layer for session
-
+			builder.Services.AddScoped<IFileService, FileService>();
 
 			// Built in serviec "register"
 			builder.Services.AddDbContext<AppDbContext>(options =>	

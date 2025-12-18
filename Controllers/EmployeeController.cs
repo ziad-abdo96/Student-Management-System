@@ -1,19 +1,24 @@
 ﻿using FirstProject.Models.Entities;
 using FirstProject.Repositories.Interfaces;
+using FirstProject.Services;
 using FirstProject.ViewModel;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Formats.Asn1;
+using System.Threading.Tasks;
 
 namespace FirstProject.Controllers
 {
 	public class EmployeeController : Controller
 	{
 		
-		IEmployeeRepository _employeeRepository;
-		IDepartmentRepository _departmentRepository;
-		public EmployeeController(IEmployeeRepository employeeRepository, IDepartmentRepository departmentRepository)
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IDepartmentRepository _departmentRepository;
+		private readonly IFileService _fileService;
+		public EmployeeController(IEmployeeRepository employeeRepository, IDepartmentRepository departmentRepository, IFileService fileService)
 		{
 			_employeeRepository = employeeRepository;
 			_departmentRepository = departmentRepository;
+			_fileService = fileService;
 		}
 
 		//################################################################
@@ -44,13 +49,16 @@ namespace FirstProject.Controllers
 		/////////////////////////////////////////////////////////////////////
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult Create(EmpWithDepartListViewModel viewModel)
+		public async Task<IActionResult> Create(EmpWithDepartListViewModel viewModel)
 		{
-			if(!ModelState.IsValid)
+			if (!ModelState.IsValid)
 			{
 				viewModel.DepartmentList = new SelectList(_departmentRepository.GetAll(), "Id", "Name");
 				return View(viewModel);
 			}
+
+			viewModel.ImageURL = await _fileService.SaveFileAsync(
+				viewModel.ImageFile, "images/employees");
 
 			Employee employee = MapToEmployee(viewModel);
 
@@ -60,7 +68,6 @@ namespace FirstProject.Controllers
 			TempData["SuccessMessage"] = "Employee created successfully.";
 			return RedirectToAction("Index");
 		}
-
 		/////////////////////////////////////////////////////////////////////
 		[HttpGet]
 		public IActionResult Edit(int id)
@@ -92,7 +99,7 @@ namespace FirstProject.Controllers
 		///////////////////////////////////////////////////////////////////// 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult Edit(EmpWithDepartListViewModel viewModel)
+		public async Task<IActionResult> Edit(EmpWithDepartListViewModel viewModel)
 		{
 			if(!ModelState.IsValid)
 			{
@@ -108,6 +115,13 @@ namespace FirstProject.Controllers
 				return RedirectToAction("Index");
 
 			}
+
+			viewModel.ImageURL = await _fileService.UpdateFileAsync(
+		   viewModel.ImageFile,
+		   employee.ImageURL,
+		   "images/employees"
+	   );
+
 			employee.Name = viewModel.Name;
 			employee.Salary = viewModel.Salary;
 			employee.Address = viewModel.Address;
@@ -135,7 +149,7 @@ namespace FirstProject.Controllers
 				TempData["ErrorMessage"] = "Employee not found.";
 				return RedirectToAction("Index");
 			}
-
+			_fileService.DeleteFile(employee.ImageURL);
 			_employeeRepository.Delete(employee);
 			_employeeRepository.Save();
 

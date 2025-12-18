@@ -1,5 +1,6 @@
 ﻿using FirstProject.Models.Entities;
 using FirstProject.Repositories.Interfaces;
+using FirstProject.Services;
 using FirstProject.ViewModel;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -9,11 +10,12 @@ namespace FirstProject.Controllers
 	{
 		private readonly ITraineeRepository _traineeRepository;
 		private readonly IDepartmentRepository _departmentRepository;
-
-		public TraineeController(ITraineeRepository traineeRepository, IDepartmentRepository departmentRepository)
+		private readonly IFileService _fileService;
+		public TraineeController(ITraineeRepository traineeRepository, IDepartmentRepository departmentRepository, IFileService fileService)
 		{
 			_traineeRepository = traineeRepository;
 			_departmentRepository = departmentRepository;
+			_fileService = fileService;
 		}
 
 		//################################################################
@@ -44,13 +46,15 @@ namespace FirstProject.Controllers
 		/////////////////////////////////////////////////////////////////////
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult Create(TraineeWithDepartListViewModel viewModel)
+		public async Task<IActionResult> Create(TraineeWithDepartListViewModel viewModel)
 		{
 			if (!ModelState.IsValid)
 			{
 				viewModel.DepartmentList = new SelectList(_departmentRepository.GetAll(), "Id", "Name");
 				return View(viewModel);
 			}
+
+			viewModel.ImageURL = await _fileService.SaveFileAsync(viewModel.);
 
 			var trainee = MapToTrainee(viewModel);
 

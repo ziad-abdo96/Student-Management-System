@@ -22,8 +22,12 @@ namespace FirstProject.ViewModel
 		[Display(Name = "Job Title")]
 		public string JobTitle { get; set; } = string.Empty;
 
-		[StringLength(500, ErrorMessage = "Image URL cannot exceed 500 characters")]
+		
 		[Display(Name = "Profile Image")]
+		[DataType(DataType.Upload)]
+		public IFormFile? ImageFile { get; set; }
+
+
 		public string? ImageURL { get; set; }
 
 		[Display(Name="Address")]

@@ -14,7 +14,7 @@ namespace FirstProject.Models.Entities
 
 		[StringLength(500, ErrorMessage = "Image URL cannot exceed 500 characters")]
 		[Url(ErrorMessage = "Please enter a valid URL")]
-		[Display(Name = "Profile Image URL")]
+		[Display(Name = "Profile Image")]
 		public string? ImageURL { get; set; }
 
 		[Required(ErrorMessage = "Salary is required")]

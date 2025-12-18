@@ -1,5 +1,6 @@
 ﻿using FirstProject.Models.Entities;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using NuGet.Protocol.Plugins;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,9 +16,12 @@ namespace FirstProject.ViewModel
 		public string Name { get; set; } = string.Empty;
 
 		[StringLength(500, ErrorMessage = "Image URL cannot exceed 500 characters")]
-		[Url(ErrorMessage = "Please enter a valid URL")]
-		[Display(Name = "Profile Image URL")]
+		[Display(Name = "Profile Imag")]
 		public string? ImageURL { get; set; }
+
+		[Display(Name = "Profile Image")]
+		[DataType(DataType.Upload)]
+		public IFormFile? ImageFile { get; set; }
 
 		[Required(ErrorMessage = "Salary is required")]
 		[Column(TypeName = "decimal(18,2)")]

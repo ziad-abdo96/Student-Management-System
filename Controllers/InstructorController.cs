@@ -1,5 +1,6 @@
 ﻿using FirstProject.Models.Entities;
 using FirstProject.Repositories.Interfaces;
+using FirstProject.Services;
 using FirstProject.ViewModel;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -7,15 +8,17 @@ namespace FirstProject.Controllers
 {
 	public class InstructorController : Controller
 	{
-		IInstructorRepository _instructorRepository;
-		ICourseRepository _courseRepository;
-		IDepartmentRepository _departmentRepository;
+		private readonly IInstructorRepository _instructorRepository;
+		private readonly ICourseRepository _courseRepository;
+		private readonly IDepartmentRepository _departmentRepository;
+		private readonly IFileService _fileService;
 
-		public InstructorController(IInstructorRepository instructor, ICourseRepository course, IDepartmentRepository department)
+		public InstructorController(IInstructorRepository instructor, ICourseRepository course, IDepartmentRepository department, IFileService fileService)
 		{
 			_instructorRepository = instructor;
 			_courseRepository = course;
 			_departmentRepository = department;
+			_fileService = fileService;
 		}
 
 		public IActionResult Index(string? search)
@@ -51,7 +54,7 @@ namespace FirstProject.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult Create(InstructorWithCoursesAndDepartmentsViewModel viewModel)
+		public async Task<IActionResult> Create(InstructorWithCoursesAndDepartmentsViewModel viewModel)
 		{
 		
 			if (!ModelState.IsValid)
@@ -60,6 +63,9 @@ namespace FirstProject.Controllers
 				return View(viewModel);
 			}
 			
+	
+			viewModel.ImageURL = await _fileService.SaveFileAsync(viewModel.ImageFile, "Images/Instructors");
+
 			var newInstructor = new Instructor()
 			{
 				Name = viewModel.Name,
@@ -90,6 +96,7 @@ namespace FirstProject.Controllers
 
 			try
 			{
+				_fileService.DeleteFile(instructor.ImageURL);
 				_instructorRepository.Delete(instructor);
 				_instructorRepository.Save();
 				TempData["SuccessMessage"] = "Instructor deleted successfully.";
