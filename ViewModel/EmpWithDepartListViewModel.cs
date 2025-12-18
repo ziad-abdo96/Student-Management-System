@@ -1,5 +1,6 @@
-﻿using FirstProject.Models.Entities;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FirstProject.ViewModel
 {
@@ -7,21 +8,32 @@ namespace FirstProject.ViewModel
 	{
 		public int Id { get; set; }
 
-		public string Name { get; set; } = null!;
+		[Required(ErrorMessage = "Employee is required")]
+		[StringLength(30, MinimumLength = 3, ErrorMessage = "Name must to between 3 and 30 characters")]
+		public string Name { get; set; } = string.Empty;
 
-		public int Salary { get; set; }
+		[Required(ErrorMessage = "Salary is required")]
+		[Range(0, 1000000, ErrorMessage = "Salary must be between 0 and 1,000,000")]
+		[Column(TypeName = "decimal(18,2)")]
+		public decimal Salary { get; set; }
 
-		public string JobTitle { get; set; } = null!;
+		[Required(ErrorMessage = "Job title is required")]
+		[StringLength(100, ErrorMessage = "Job title cannot exceed 100 characters")]
+		[Display(Name = "Job Title")]
+		public string JobTitle { get; set; } = string.Empty;
 
-		public string ImageURL { get; set; } = null!;
+		[StringLength(500, ErrorMessage = "Image URL cannot exceed 500 characters")]
+		[Display(Name = "Profile Image")]
+		public string? ImageURL { get; set; }
 
+		[Display(Name="Address")]
+		[StringLength(200, ErrorMessage = "Address cannot exceed 200 characters")]
 		public string? Address { get; set; }
 
-		[Display(Name="Department")]
-		public int DepartmentID { get; set; }
+		[Required(ErrorMessage = "Please select a department")]
+		[Display(Name = "Department")]
+		public int DepartmentId { get; set; }
 
-		public Department Department { get; set; } = null!;
-
-		public List<Department> Departments { get; set; } = null!;
+		public SelectList? DepartmentList{ get; set; }
 	}
 }

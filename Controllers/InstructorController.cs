@@ -1,7 +1,7 @@
 ﻿using FirstProject.Models.Entities;
 using FirstProject.Repositories.Interfaces;
 using FirstProject.ViewModel;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace FirstProject.Controllers
 {
@@ -18,58 +18,62 @@ namespace FirstProject.Controllers
 			_departmentRepository = department;
 		}
 
-		public IActionResult Index()
+		public IActionResult Index(string? search)
 		{
-			try
-			{
-				List<Instructor> instructors = _instructorRepository.GetAll();
-				return View(instructors);
-			}
-			catch (Exception ex)
-			{
-				return View("Error");
-			}
+			search = search?.Trim();
+			var instructors = string.IsNullOrWhiteSpace(search) ?
+				_instructorRepository.GetAllWithCourseAndDepartment() :
+				_instructorRepository.SearchByNameContains(search);
 
+			ViewBag.CurrentSearch = search;
+			return View(instructors);
 		}
 
-		public IActionResult Details(int id)
-		{
-			Instructor? instructor = _instructorRepository.GetByIdWithCourseAndDepartment(id);
-			if(instructor == null)
-				return NotFound();
-			return View("Details", instructor);
-		}
 
 		[HttpGet]
 		public IActionResult Create()
 		{
-			InstructorWithCoursesAndDepartmentsViewModel viewModel = new InstructorWithCoursesAndDepartmentsViewModel();
 
-			viewModel.Courses = _courseRepository.GetAll();
-			viewModel.Departments = _departmentRepository.GetAll();
+			var viewModel = new InstructorWithCoursesAndDepartmentsViewModel()
+			{
+				DepartmentList = new SelectList(_departmentRepository.GetAll(), "Id", "Name")	,
+			};
 
-			return View("Create", viewModel);
+			return View(viewModel);
+		}
+
+
+		public IActionResult GetCoursesByDepartment(int departmentId)
+		{
+			var courseList = new SelectList(_courseRepository.GetCoursesByDepartmentId(departmentId), "Id", "Name");
+			return Json(courseList);
 		}
 
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 		public IActionResult Create(InstructorWithCoursesAndDepartmentsViewModel viewModel)
 		{
-			viewModel.Courses = _courseRepository.GetAll();
-			viewModel.Departments = _departmentRepository.GetAll();
-
-			Instructor newInstructor = new Instructor()
+		
+			if (!ModelState.IsValid)
+			{
+				viewModel.DepartmentList = new SelectList(_departmentRepository.GetAll(), "Id", "Name");
+				return View(viewModel);
+			}
+			
+			var newInstructor = new Instructor()
 			{
 				Name = viewModel.Name,
-				Adress = viewModel.Adress,
+				Address = viewModel.Address,
 				ImageURL = viewModel.ImageURL,
 				Salary = viewModel.Salary,
-				Course = _courseRepository.GetById(viewModel.CourseId),
-				Department = _departmentRepository.GetById(viewModel.DepartmentId),
+				CourseId = viewModel.CourseId,
+				DepartmentId = viewModel.DepartmentId
 			};
 
 			_instructorRepository.Add(newInstructor);
 			_instructorRepository.Save();
 
+			TempData["SuccessMessage"] = "Instructor created successfully!";
 			return RedirectToAction("Index");
 		}
 
@@ -78,33 +82,25 @@ namespace FirstProject.Controllers
 		{
 			var instructor = _instructorRepository.GetById(id);
 			if (instructor == null)
-				return NotFound();
+			{
+				TempData["ErrorMessage"] = "Instructor not found.";
+				return RedirectToAction("Index");
+
+			}
 
 			try
 			{
 				_instructorRepository.Delete(instructor);
 				_instructorRepository.Save();
-				TempData["Success"] = "Instructor deleted successfully.";
+				TempData["SuccessMessage"] = "Instructor deleted successfully.";
 				return RedirectToAction("Index");
 			}
 			catch (Exception ex)
 			{
 
-				TempData["Error"] = "Failed to delete instructor.";
+				TempData["ErrorMessage"] = "Failed to delete instructor.";
 				return RedirectToAction("Index");
 			}
 		}
-
-
-
-		[HttpGet]
-		public IActionResult Search(string name)
-		{
-
-			var instructors = _instructorRepository.SearchByNameContains(name);
-
-			return View("ShowAll", instructors);
-		}
-
 	}
 }

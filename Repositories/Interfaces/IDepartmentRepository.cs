@@ -14,6 +14,7 @@ namespace FirstProject.Repositories.Interfaces
 
 		public Department? GetById(int id);
 
+		public List<Department> SearchByName(string search);
 		public void Save();
 	}
 }

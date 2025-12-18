@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
-namespace FirstProject.Models.Entities
+namespace FirstProject.ViewModel
 {
-	public class Trainee
+	public class TraineeWithDepartListViewModel
 	{
 		public int Id { get; set; }
 
@@ -25,12 +25,6 @@ namespace FirstProject.Models.Entities
 		[Display(Name = "Department")]
 		public int DepartmentId { get; set; }
 
-		public Department? Department { get; set; }
-
-		public List<CrsResult> CrsResults { get; set; } = new List<CrsResult>();
-
-		public bool IsDeleted { get; set; } = false;
-
-		public DateTime? DeletedAt { get; set; }
+		public SelectList? DepartmentList { get; set; }
 	}
 }

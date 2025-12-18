@@ -1,69 +1,174 @@
-﻿using FirstProject.Repositories.Interfaces;
+﻿using FirstProject.Models.Entities;
+using FirstProject.Repositories.Interfaces;
 using FirstProject.ViewModel;
-using Microsoft.AspNetCore.Mvc;
-using FirstProject.Filters;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
 namespace FirstProject.Controllers
 {
 	public class TraineeController : Controller
 	{
-		ITraineeRepository _trainee;
+		private readonly ITraineeRepository _traineeRepository;
+		private readonly IDepartmentRepository _departmentRepository;
 
-		public TraineeController(ITraineeRepository trainee)
+		public TraineeController(ITraineeRepository traineeRepository, IDepartmentRepository departmentRepository)
 		{
-			_trainee = trainee;
+			_traineeRepository = traineeRepository;
+			_departmentRepository = departmentRepository;
 		}
 
-		
-		public IActionResult exption()
+		//################################################################
+		public IActionResult Index(string? search)
 		{
-			throw new NotImplementedException();
+			search = search?.Trim();
+
+			var trainees = string.IsNullOrWhiteSpace(search)
+				? _traineeRepository.GetAllWithDepartments()
+				: _traineeRepository.SearchByNameWithDepartments(search);
+
+			ViewBag.CurrentSearch = search;
+			return View("Index", trainees);
 		}
 
-		[Authorize]
-		public IActionResult Index()
+		/////////////////////////////////////////////////////////////////////////
+		[HttpGet]
+		public IActionResult Create()
 		{
-			var trainees = _trainee.GetAll();
-			return View(trainees);
-		}
-
-		public IActionResult ShowResult(int traineeId, int courseId)
-		{
-			var result = _trainee.GetTraineeCourseResult(traineeId, courseId);
-
-			if (result == null)
-				return NotFound();
-
-			var vm = new TraineeCourseResultViewModel
+			var viewModel = new TraineeWithDepartListViewModel
 			{
-				TraineeName = result.Trainee.Name,
-				CourseName = result.Course.Name,
-				Degree = result.Degree,
-				Color = result.Degree >= result.Course.MinDegree ? "green" : "red",
-				States = result.Degree >= result.Course.MinDegree ? "Pass" : "Fail",
+				DepartmentList = new SelectList(_departmentRepository.GetAll(), "Id", "Name")
 			};
 
-			return View(vm);
+			return View(viewModel);
 		}
-		public IActionResult ShowTraineeResult(int id)
+
+		/////////////////////////////////////////////////////////////////////
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public IActionResult Create(TraineeWithDepartListViewModel viewModel)
 		{
-			var results = _trainee.GetAllResultsForTrainee(id);
-
-			if (!results.Any())
-				return NotFound("No results found for this trainee.");
-
-			var vm = results.Select(r => new TraineeCourseResultViewModel
+			if (!ModelState.IsValid)
 			{
-				CourseName = r.Course.Name,
-				Degree = r.Degree
-			}).ToList();
+				viewModel.DepartmentList = new SelectList(_departmentRepository.GetAll(), "Id", "Name");
+				return View(viewModel);
+			}
 
+			var trainee = MapToTrainee(viewModel);
 
-			ViewBag.Trainee = results[0].Trainee;
+			_traineeRepository.Add(trainee);
+			_traineeRepository.Save();
 
-			return View(vm);
+			TempData["SuccessMessage"] = "Trainee created successfully!";
+			return RedirectToAction("Index");
 		}
 
+		/////////////////////////////////////////////////////////////////////
+		[HttpGet]
+		public IActionResult Edit(int id)
+		{
+			var trainee = _traineeRepository.GetById(id);
 
+			if (trainee == null)
+			{
+				TempData["ErrorMessage"] = "Trainee not found.";
+				return RedirectToAction("Index");
+			}
+
+			var viewModel = new TraineeWithDepartListViewModel
+			{
+				Id = trainee.Id,
+				Name = trainee.Name,
+				Address = trainee.Address,
+				ImageURL = trainee.ImageURL,
+				Grade = trainee.Grade,
+				DepartmentId = trainee.DepartmentId,
+				DepartmentList = new SelectList(_departmentRepository.GetAll(), "Id", "Name")
+			};
+
+			return View(viewModel);
+		}
+
+		///////////////////////////////////////////////////////////////////// 
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public IActionResult Edit(TraineeWithDepartListViewModel viewModel)
+		{
+			if (!ModelState.IsValid)
+			{
+				viewModel.DepartmentList = new SelectList(_departmentRepository.GetAll(), "Id", "Name");
+				return View(viewModel);
+			}
+
+			var trainee = _traineeRepository.GetById(viewModel.Id);
+
+			if (trainee == null)
+			{
+				TempData["ErrorMessage"] = "Trainee not found.";
+				return RedirectToAction("Index");
+			}
+
+			trainee.Name = viewModel.Name;
+			trainee.Address = viewModel.Address;
+			trainee.ImageURL = viewModel.ImageURL;
+			trainee.Grade = viewModel.Grade;
+			trainee.DepartmentId = viewModel.DepartmentId;
+
+			_traineeRepository.Update(trainee);
+			_traineeRepository.Save();
+
+			TempData["SuccessMessage"] = "Trainee updated successfully!";
+			return RedirectToAction("Index");
+		}
+
+		/////////////////////////////////////////////////////////////////////
+		[HttpGet]
+		public IActionResult Delete(int id)
+		{
+			var trainee = _traineeRepository.GetById(id);
+
+			if (trainee == null)
+			{
+				TempData["ErrorMessage"] = "Trainee not found.";
+				return RedirectToAction("Index");
+			}
+
+			return View(trainee);
+		}
+		
+		[HttpPost, ActionName("Delete")]
+		[ValidateAntiForgeryToken]
+		public IActionResult DeleteConfirmed(int id)
+		{
+			var trainee = _traineeRepository.GetById(id);
+
+			if (trainee == null)
+			{
+				TempData["ErrorMessage"] = "Trainee not found.";
+				return RedirectToAction("Index");
+			}
+
+			string traineeName = trainee.Name;
+
+			trainee.IsDeleted = true;
+			trainee.DeletedAt = DateTime.UtcNow;
+
+			_traineeRepository.Update(trainee);
+			_traineeRepository.Save();
+
+			TempData["SuccessMessage"] = $"Trainee '{traineeName}' deleted successfully!";
+			return RedirectToAction("Index");
+		}
+
+		////////////////////////////////////////////////////////////////////
+		private Trainee MapToTrainee(TraineeWithDepartListViewModel viewModel)
+		{
+			return new Trainee
+			{
+				Name = viewModel.Name,
+				Address = viewModel.Address,
+				ImageURL = viewModel.ImageURL,
+				Grade = viewModel.Grade,
+				DepartmentId = viewModel.DepartmentId
+			};
+		}
 	}
 }

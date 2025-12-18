@@ -9,59 +9,47 @@
             <h3 class="mb-0">Add New Instructor</h3>
         </div>
         <div class="card-body p-4">
-            <form asp-action="Create">
-            <div  class="mb-3">
-                <label class="form-label">Name</label>
-                <input asp-for="Name" class="form-control" />
-            </div  class="mb-3">
+            <form asp-action="Create" method="post">
+                <span asp-validation-summary="All" class="text-danger"></span>
+                <span asp-validation-summary="ModelOnly" class="text-danger"></span>
+                <div  class="mb-3">
+                    <label class="form-label">Name</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div  class="mb-3">
 
-            <div  class="mb-3">
-                <label class="form-label">Address</label>
-                <input asp-for="Adress" class="form-control" />
-            </div> 
+                <div  class="mb-3">
+                    <label class="form-label">Address</label>
+                    <input asp-for="Address" class="form-control" />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div> 
 
-            <div  class="mb-3">
-                <label>Salary</label>
-                <input asp-for="Salary" class="form-control" />
-            </div>
+                <div  class="mb-3">
+                    <label>Salary</label>
+                    <input asp-for="Salary" class="form-control" />
+                    <span asp-validation-for="Salary" class="text-danger"></span>
+                </div>
 
-            <div  class="mb-3">
-                <label class="form-label">ImageURL</label>
-                <input type="file" asp-for="ImageURL" class="form-control"/>
-            </div  class="mb-3">
+                <div  class="mb-3">
+                    <label class="form-label">ImageURL</label>
+                    <input type="file" asp-for="ImageURL" class="form-control"/>
+                    <span asp-validation-for="ImageURL" class="text-danger"></span>
+                </div  class="mb-3">
 
-            <div class="mb-3">
-                <label class="form-label">Courses</label>
-                <select id="CourseId" name="CourseId" class="form-control">
-                    @foreach (var item in @Model.Courses)
-                    {
-                        if (@item.Id == Model.CourseId)
-                        {
-                            <option value="@item.Id" selected>@item.Name</option>
-                        }
-                        else
-                        {
-                            <option value="@item.Id">@item.Name</option>
-                        }
-                    }
-                </select>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="DepartmentId" class="form-label">Department</label>
+                    <select asp-for="DepartmentId" asp-items="Model.DepartmentList" class="form-select" onchange="GetCourses()"  id="DepartmentList"> 
+                            <option value="">-- Select Department --</option>
+                    </select>
+                    <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                </div>
 
             <div class="mb-3">
-                <label class="form-label">Departments</label>
-                <select id="DepartmentId" name="DepartmentId" class="form-control">
-                    @foreach (var item in @Model.Departments)
-                    {
-                        if (@item.Id == Model.CourseId)
-                        {
-                            <option value="@item.Id" selected>@item.Name</option>
-                        }
-                        else
-                        {
-                            <option value="@item.Id">@item.Name</option>
-                        }
-                    }
-                </select>
+                    <label asp-for="CourseId" class="form-label"></label>
+                    <select asp-for="CourseId" asp-items="Model.CourseList" class="form-select" id="CourseList">
+                        <option value="">-- Select Course --</option>
+                    </select>
+                    <span asp-validation-for="CourseId" class="text-danger"></span>
             </div>
              <div class="text-center">
                   <button type="submit" class="btn btn-success px-4">Save</button>
@@ -70,7 +58,27 @@
         </form>
         </div>
     </div>
-
-
-
 </div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+        function GetCourses() {
+        var departmentId = document.getElementById("DepartmentList").value;
+        var courseSelect = document.getElementById("CourseList");
+       
+       
+        $.ajax({
+            url: '/Instructor/GetCoursesByDepartment?departmentId=' + departmentId,
+            success: function (result) {
+               courseSelect.innerHTML = "<option value=''>-- Select Course --</option>";
+                for (var course of result) {
+                    courseSelect.innerHTML += "<option value="+course.value+">"+course.text+"</option>";
+                }
+            },
+            error: function () {
+                alert('Error retrieving courses.');
+            }
+        });
+    }
+
+</script>

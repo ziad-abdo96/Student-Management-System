@@ -1,8 +1,7 @@
 ﻿using FirstProject.Models.Entities;
 using FirstProject.Repositories.Interfaces;
 using FirstProject.ViewModel;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace FirstProject.Controllers
 {
@@ -18,12 +17,20 @@ namespace FirstProject.Controllers
 
 		public IActionResult Index(string? search)
 		{
-			List<Course> courses = _course.GetAll();
+			List<Course> courses;
 
-			if(!search.IsNullOrEmpty())
+			if (string.IsNullOrWhiteSpace(search))
 			{
-				courses = courses.Where(c => c.Name.Contains(search)).ToList();
+				courses = _course.GetAllWithDepartments();
 			}
+			else
+			{
+				courses = _course.SearchByNameWithDepartments(search);
+			}
+
+
+			ViewBag.CurrentSearch = search;
+
 			return View(courses);
 		}
 
@@ -32,19 +39,20 @@ namespace FirstProject.Controllers
 		{
 			var results = _course.GetResultsByCourseId(id);
 
-			List<TraineeCourseResultViewModel> vm = new List<TraineeCourseResultViewModel>();
-
-
-
-			foreach (var result in results)
+			if (results == null || !results.Any())
 			{
-				vm.Add(new TraineeCourseResultViewModel
-				{
-					TraineeName = result.Trainee.Name,
-					Degree = result.Degree,
-					Color = result.Degree >= result.Course.MinDegree ? "green" : "red"
-				});
+				return NotFound();
 			}
+
+			var vm = results.Select(result => new TraineeCourseResultViewModel
+			{
+				TraineeName = result.Trainee?.Name ?? "Unknown",
+				Degree = result.Degree,
+				Color = result.Degree >= result.Course.MinDegree ? "success" : "danger"
+			}).ToList();
+
+			ViewBag.CourseName = results.FirstOrDefault()?.Course?.Name;
+			ViewBag.CourseId = id;
 
 			return View(vm);
 
@@ -54,24 +62,25 @@ namespace FirstProject.Controllers
 		[HttpGet]
 		public IActionResult Create()
 		{
-			List<Department> departments = _department.GetAll();
-			CourseWithDepartmentViewModel viewModel = new CourseWithDepartmentViewModel();
-			viewModel.Departments = departments;
+			var viewModel = new CourseWithDepartmentViewModel
+			{
+				DepartmentList = new SelectList(_department.GetAll(), "Id", "Name")
+			};
 
 			return View(viewModel);
 		}
 
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 		public IActionResult Create(CourseWithDepartmentViewModel viewModel)
 		{
-			if(viewModel.Name ==  null || viewModel.Degree <= 0 || viewModel.Hours <= 0 || viewModel.MinDegree <= 0 || viewModel.DepartmentId <= 0)
+			if(!ModelState.IsValid)
 			{
-				List<Department> departments = _department.GetAll();
-				viewModel.Departments = departments;
+				viewModel.DepartmentList = new SelectList(_department.GetAll(), "Id", "Name");
 				return View(viewModel);
 			}
 
-			Course course = new Course
+			var course = new Course
 			{
 				Name = viewModel.Name,
 				Degree = viewModel.Degree,
@@ -82,7 +91,56 @@ namespace FirstProject.Controllers
 
 			_course.Add(course);
 			_course.Save();
+			TempData["SuccessMessage"] = "Course created successfully!";
+			return RedirectToAction("Index");
+		}
 
+		[HttpGet]
+		public IActionResult Edit(int id)
+		{
+			var course = _course.GetById(id);
+			if(course == null)
+			{
+				TempData["ErrorMessage"] = "Course not found.";
+				return RedirectToAction("Index");
+			}
+
+			var viewModel = new CourseWithDepartmentViewModel
+			{
+				Id = course.Id,
+				Name = course.Name,
+				Degree = course.Degree,
+				Hours = course.Hours,
+				MinDegree = course.MinDegree,
+				DepartmentId = course.DepartmentId,
+				DepartmentList = new SelectList(_department.GetAll(), "Id", "Name", course.DepartmentId)
+			};
+			return View(viewModel);
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public IActionResult Edit(CourseWithDepartmentViewModel viewModel)
+		{
+			if (!ModelState.IsValid)
+			{
+				viewModel.DepartmentList = new SelectList(_department.GetAll(), "Id", "Name", viewModel.DepartmentId);
+				return View(viewModel);
+			}
+			var course = _course.GetById(viewModel.Id);
+			if(course == null)
+			{
+				TempData["ErrorMessage"] = "Course not found.";
+				return RedirectToAction("Index");
+			}
+			course.Name = viewModel.Name;
+			course.Degree = viewModel.Degree;
+			course.Hours = viewModel.Hours;
+			course.MinDegree = viewModel.MinDegree;
+			course.DepartmentId = viewModel.DepartmentId;
+			_course.Update(course);
+			_course.Save();
+			TempData["SuccessMessage"] = "Course updated successfully!";
 			return RedirectToAction("Index");
 		}
 
@@ -90,17 +148,15 @@ namespace FirstProject.Controllers
 		public IActionResult Delete(int id)
 		{
 			var course = _course.GetById(id);
-
 			if (course == null)
-				return NotFound();
-
+			{
+				TempData["ErrorMessage"] = "Course not found.";
+				return RedirectToAction("Index");
+			}
 			_course.Delete(course);
 			_course.Save();
-
+			TempData["SuccessMessage"] = $"Course '{course.Name}' deleted successfully!";
 			return RedirectToAction("Index");
 		}
-
-
-
 	}
 }

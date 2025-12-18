@@ -16,8 +16,8 @@ namespace FirstProject.Repositories.Interfaces
 
 		public Instructor? GetByIdWithCourseAndDepartment(int id);
 
+		public List<Instructor> GetAllWithCourseAndDepartment();
 		public List<Instructor> SearchByNameContains(string name);
-
 		public void Save();
 	}
 }

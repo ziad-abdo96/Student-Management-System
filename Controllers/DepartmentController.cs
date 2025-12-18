@@ -1,60 +1,145 @@
-﻿using FirstProject.Data;
-using FirstProject.Models.Entities;
+﻿using FirstProject.Models.Entities;
 using FirstProject.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.CodeAnalysis.FlowAnalysis;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FirstProject.Controllers
 {
 	public class DepartmentController : Controller
 	{
-		AppDbContext _context;
-		IDepartmentRepository _departmentRepository;
+		private readonly IDepartmentRepository _departmentRepository;
 
-		public DepartmentController(IDepartmentRepository departmentRepository, AppDbContext context)
+		public DepartmentController(IDepartmentRepository departmentRepository)
 		{
 			_departmentRepository = departmentRepository;
-			_context = context;
-			
 		}
 
 		[Authorize]
-		public IActionResult Index()
+		public IActionResult Index(string? search)
 		{
-			List<Department> departmentList = _departmentRepository.GetAll();
-
-			return View("Index", departmentList);
-
+			search = search?.Trim();
+			var departments = string.IsNullOrWhiteSpace(search)
+				? _departmentRepository.GetAll()
+				: _departmentRepository.SearchByName(search);
+			ViewBag.CurrentSearch = search;
+			return View(departments);
 		}
 
-		public IActionResult Add()
+		[HttpGet]
+		public IActionResult Create()
 		{
-			return View("Add");
+			return View();
 		}
 
 		[HttpPost]
-		public IActionResult SaveAdd(Department department)
+		[ValidateAntiForgeryToken]
+		public IActionResult Create(Department department)
 		{
-			if(department.Name == null || department.ManagerName == null)
-				return View("Add", department);
+			if (!ModelState.IsValid)
+			{
+				return View(department);
+			}
 
-			_departmentRepository.Add(department);
-			_departmentRepository.Save();
+			try
+			{
+				_departmentRepository.Add(department);
+				_departmentRepository.Save();
 
-			return RedirectToAction("Index");
-			
+				TempData["SuccessMessage"] = $"Department '{department.Name}' created successfully!";
+				return RedirectToAction("Index");
+			}
+			catch (Exception ex)
+			{
+				ModelState.AddModelError("", "An error occurred while creating the department.");
+				return View(department);
+			}
 		}
 
-
-		public JsonResult Partial(int id)
+		[HttpGet]
+		public IActionResult Edit(int id)
 		{
-			var emp = _context.Employee.Where(x => x.Id == id).ToList();
-			return Json(emp);
+			var department = _departmentRepository.GetById(id);
+
+			if (department == null)
+			{
+				TempData["ErrorMessage"] = "Department not found.";
+				return RedirectToAction("Index");
+			}
+
+			return View(department);
 		}
 
-
-		public IActionResult Department()
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public IActionResult Edit(int id, Department department)
 		{
-			return View(_departmentRepository.GetAll());
+			if (id != department.Id)
+			{
+				return BadRequest();
+			}
+
+			if (!ModelState.IsValid)
+			{
+				return View(department);
+			}
+
+			try
+			{
+				_departmentRepository.Update(department);
+				_departmentRepository.Save();
+
+				TempData["SuccessMessage"] = $"Department '{department.Name}' updated successfully!";
+				return RedirectToAction(nameof(Index));
+			}
+			catch (Exception ex)
+			{
+				ModelState.AddModelError("", "An error occurred while updating the department.");
+				return View(department);
+			}
+		}
+
+		[HttpGet]
+		public IActionResult Delete(int id)
+		{
+			var department = _departmentRepository.GetById(id);
+			if (department == null)
+			{
+				TempData["ErrorMessage"] = "Department not found.";
+				return RedirectToAction("Index");
+			}
+
+			return View(department);
+		}
+
+		[HttpPost, ActionName("Delete")]
+		[ValidateAntiForgeryToken]
+		public IActionResult DeleteConfirmed(int id)
+		{
+			var department = _departmentRepository.GetById(id);
+
+			if (department == null)
+			{
+				TempData["ErrorMessage"] = "Department not found.";
+				return RedirectToAction(nameof(Index));
+			}
+
+			try
+			{
+				department.IsDeleted = true;
+				department.DeletedAt = DateTime.UtcNow;
+
+				_departmentRepository.Update(department);
+				_departmentRepository.Save();
+
+				TempData["SuccessMessage"] = $"Department '{department.Name}' deleted successfully!";
+				return RedirectToAction(nameof(Index));
+			}
+			catch (Exception ex)
+			{
+				TempData["ErrorMessage"] = "An error occurred while deleting the department.";
+				return RedirectToAction(nameof(Index));
+			}
 		}
 	}
 }

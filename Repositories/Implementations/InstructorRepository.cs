@@ -46,10 +46,19 @@ namespace FirstProject.Repositories.Implementations
 			return _context.Instructor.FirstOrDefault(d => d.Id == id);
 		}
 
+		public List<Instructor> GetAllWithCourseAndDepartment()
+		{
+			return _context.Instructor
+				.Include(x => x.Course)
+				.Include(x => x.Department)
+				.ToList();
+		}
 		public List<Instructor> SearchByNameContains(string name)
 		{
 			return _context.Instructor
 				.Where(x => x.Name.Contains(name))
+				.Include(x => x.Department)
+				.Include(x => x.Course)
 				.ToList();
 		}
 

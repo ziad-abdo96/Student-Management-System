@@ -1,5 +1,4 @@
-﻿
-@model List<Department>
+﻿@model List<Department>
 
 @{
     ViewData["Title"] = "Department Index";
@@ -7,20 +6,163 @@
 }
 
 
-<h1>Index</h1>
-
-<a href="/Department/Add" class="btn btn-success my-3"> New</a> 
-<table class="table table-hover table-bordered">
-    <tr>
-        <th>No.</th>
-        <th>Name</th>
-    </tr>
-    @foreach (var item in Model)
+<div class="container mt-4">
+    @if(TempData["SuccessMessage"] != null)
     {
-        <tr>
-            <td>@item.Id</td>
-            <td>@item.Name</td>
-            <td><a href="/department/edit?id=@item.Id>" class="">Edit</a></td>
-        </tr>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     }
-</table>
+
+    @if(TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h3 class="mb-0">
+                        <i class="bi bi-people-fill"></i> Department Management
+                    </h3>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a asp-action="Create" class="btn btn-light">
+                        <i class="bi bi-plus-circle"></i> Add New Department
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-body">
+             <form asp-action="Index" method="get">
+                 <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="search" class="form-control" placeholder="Search by Department Name..." value="@ViewBag.CurrentSearch" />
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                    @if (!string.IsNullOrEmpty(ViewBag.CurrentSearch))
+                    {
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Clear
+                        </a>
+                    }
+                </div>
+             </form>
+        </div>
+    </div>
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>
+                                    <i class="bi bi-hash"></i> ID
+                                </th>
+                                <th>
+                                    <i class="bi bi-person"></i> Name
+                                </th>
+                                <th>
+                                    <i class="bi bi-award"></i> Manager
+                                </th>
+                                <th class="text-center">
+                                    <i class="bi bi-gear"></i> Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var department in Model)
+                            {
+                                <tr>
+                                    <td>@department.Id</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2"
+                                                     style="width: 40px; height: 40px;">
+                                                    <i class="bi bi-person-fill"></i>
+                                                </div>
+                                            <strong>@department.Name</strong>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(department.ManagerName))
+                                        {
+                                            <span class="badge bg-primary">@department.ManagerName</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No Manager</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Edit"
+                                               asp-route-id="@department.Id"
+                                               class="btn btn-sm btn-warning"
+                                               title="Edit">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+                                            <a asp-action="Delete"
+                                               asp-route-id="@department.Id"
+                                               class="btn btn-sm btn-danger"
+                                               title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-3">
+                    <p class="text-muted">
+                        <i class="bi bi-info-circle"></i>
+                        Showing <strong>@Model.Count()</strong> trainee(s)
+                        @if (!string.IsNullOrEmpty(ViewBag.CurrentSearch))
+                        {
+                            <span>matching "<strong>@ViewBag.CurrentSearch</strong>"</span>
+                        }
+                    </p>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox display-1 text-muted"></i>
+                    <h4 class="mt-3 text-muted">No Trainees Found</h4>
+                    @if (!string.IsNullOrEmpty(ViewBag.CurrentSearch))
+                    {
+                        <p class="text-muted">
+                            No trainees match your search "<strong>@ViewBag.CurrentSearch</strong>"
+                        </p>
+                        <a asp-action="Index" class="btn btn-primary">
+                            <i class="bi bi-arrow-left"></i> View All Trainees
+                        </a>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Get started by adding your first trainee</p>
+                        <a asp-action="Create" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Add New Trainee
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

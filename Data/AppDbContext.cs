@@ -18,23 +18,28 @@ namespace FirstProject.Data
 		public DbSet<CrsResult> CrsResult { get; set; }
 
 		public DbSet<Employee> Employee { get; set; }
-		
-	//	public DbSet<Student> Student { get; set; }
+
+		//	public DbSet<Student> Student { get; set; }
 
 		//public AppDbContext() : base()
 		//{
 
 		//}
 
-		public AppDbContext(DbContextOptions options) : base(options)
-		{
-
-		}
-
-		public AppDbContext()
+		public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
 		{
 		}
 
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			// This is where global query filters belong
+			modelBuilder.Entity<Trainee>()
+				.HasQueryFilter(t => !t.IsDeleted);
+			modelBuilder.Entity<Department>()
+				.HasQueryFilter(d => !d.IsDeleted);
+
+			base.OnModelCreating(modelBuilder);
+		}
 		//protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		//{
 		//	base.OnConfiguring(optionsBuilder);

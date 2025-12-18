@@ -20,8 +20,10 @@ namespace FirstProject
 
 
 			// Built in serviec "register"
-			builder.Services.AddDbContext<AppDbContext>(options =>
-		options.UseSqlServer(builder.Configuration.GetConnectionString("cs")));
+			builder.Services.AddDbContext<AppDbContext>(options =>	
+								options.UseSqlServer(builder.Configuration.GetConnectionString("cs"))
+				
+							);
 
 			builder.Services.AddIdentity<ApplicationUser, IdentityRole>(option =>
 			{

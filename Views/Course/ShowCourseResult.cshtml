@@ -1,31 +1,36 @@
 ﻿@model List<TraineeCourseResultViewModel>
-
 @{
-    ViewData["Title"] = "Show Course Result";
+    ViewData["Title"] = "Course Results";
 }
 
-<h2 class="my-3">Course Results</h2>
+<h2>@ViewBag.CourseName - Results</h2>
 
 <div class="table-responsive">
-    <table class="table table-striped table-bordered table-hover text-center align-middle">
+    <table class="table table-striped table-bordered">
         <thead class="table-dark">
             <tr>
-                <th>Name</th>
+                <th>Trainee Name</th>
+                <th>Course Name</th>
                 <th>Degree</th>
-
+                <th>Status</th>
             </tr>
         </thead>
-
         <tbody>
-            @foreach (var result in Model)
+            @foreach (var item in Model)
             {
                 <tr>
-                    <td>@result.TraineeName</td>
-
-                    <td style="color:@result.Color">@result.Degree</td>
-
+                    <td>@item.TraineeName</td>
+                    <td>@(item.CourseName ?? "-")</td>
+                    <td class="text-@item.Color fw-bold">@item.Degree</td>
+                    <td>
+                        <span class="badge bg-@item.Color">
+                            @(item.IsPassed ? "Passed ✓" : "Failed ✗")
+                        </span>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
+
+<a asp-action="Index" class="btn btn-secondary">Back to Courses</a>

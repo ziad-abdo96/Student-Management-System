@@ -9,14 +9,14 @@
 @if(TempData["Success"] != null)
 {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["Success"]
+        @TempData["SuccessMessage"]
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 }
 @if(TempData["Error"] != null)
 {
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @TempData["Error"]
+        @TempData["ErrorMessage"]
         <button type="button" class="btn-close" data-bs-dismiss="al"></button>
     </div>
 }
@@ -24,10 +24,19 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <a asp-action="create" class="btn btn-success">New Instructor</a>
 
-    <form asp-action="Search" method="get" class="d-flex">
-        <input type="search" name="name" value="" class="form-control me-2" placeholder="Search by name" />
-        <button type="submit" class="btn btn-primary">Search</button>
+    <form asp-action="Index" method="get" class="d-flex">
+        <div class="input-group">
+            <input type="search" name="search" value="" class="form-control me-2" placeholder="Search by name" />
+            <button type="submit" class="btn btn-primary">Search</button>
+            @if (!string.IsNullOrEmpty(ViewBag.CurrentSearch))
+            {
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Clear
+                </a>
+            }
+        </div>
     </form>
+
 </div>
 
 <div class="container">
@@ -51,7 +60,7 @@
                     <tr>
                         <td>@instructor.Id</td>
                         <td>@instructor.Name</td>
-                        <td>@instructor.Adress</td>
+                        <td>@instructor.Address</td>
                         <td>@instructor.Salary</td>
                         <td>@(instructor.Course?.Name ?? "-")</td>
                         <td>@(instructor.Department?.Name ?? "-" )</td>

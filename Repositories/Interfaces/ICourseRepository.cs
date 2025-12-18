@@ -14,8 +14,14 @@ namespace FirstProject.Repositories.Interfaces
 
 		public Course? GetById(int id);
 
-		List<CrsResult> GetResultsByCourseId(int courseId);
+		public List<Course> SearchByName(string name);
+		public List<CrsResult> GetResultsByCourseId(int courseId);
 
+		public List<Course> GetAllWithDepartments();
+
+		public List<Course> SearchByNameWithDepartments(string name);
+		
+		public List<Course> GetCoursesByDepartmentId(int departmentId);
 		public void Save();
 	}
 }

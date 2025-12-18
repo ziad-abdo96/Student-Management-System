@@ -23,11 +23,9 @@ namespace FirstProject.Repositories.Implementations
 			_context.Update(Employee);
 		}
 
-		public void Delete(int Id)
+		public void Delete(Employee employee)
 		{
-			Employee? Employee = GetById(Id);
-			if (Employee != null)
-				_context?.Remove(Employee);
+			_context?.Remove(employee);
 		}
 
 		public List<Employee> GetAll()
@@ -50,6 +48,21 @@ namespace FirstProject.Repositories.Implementations
 		public void Save()
 		{
 			_context.SaveChanges();
+		}
+
+		public List<Employee> GetAllWithDepartments()
+		{
+			return _context.Employee
+					.Include(e => e.Department)
+					.ToList();
+		}
+
+		public List<Employee> SearchByNameWithDepartments(string name)
+		{
+			return _context.Employee
+					.Include(e => e.Department)
+					.Where(e => e.Name.Contains(name))
+					.ToList();
 		}
 	}
 }

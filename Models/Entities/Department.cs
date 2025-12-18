@@ -6,20 +6,19 @@ namespace FirstProject.Models.Entities
 	{
 		public int Id { get; set; }
 
-		[Required]
-		[MaxLength(30)]
-		[MinLength(3)]
-		public string Name { get; set; } = null!;
+		[Required(ErrorMessage = "Department name is required")]
+		[StringLength(100, MinimumLength = 2, ErrorMessage = "Name must be between 2 and 100 characters")]
+		[Display(Name = "Department Name")]
+		public string Name { get; set; } = string.Empty;
 
-		[MaxLength(30)]
-		[MinLength(3)]
-		public string? ManagerName { get; set; }
+		[StringLength(100, ErrorMessage = "Manager name cannot exceed 100 characters")]
+		[Display(Name = "Manager Name")]
+		public string? ManagerName { get; set; } 
+		public List<Instructor> Instructors { get; set; } = new List<Instructor>();
+		public List<Trainee> Trainees { get; set; } = new List<Trainee>();
+		public List<Course> Courses { get; set; } = new List<Course>();
 
-		public List<Instructor> Instructors { get; set; } = null!;
-		
-		public List<Trainee> Trainees { get; set; } = null!;
-		
-		public List<Course> Courses { get; set; } = null!;
+		public bool IsDeleted { get; set; } = false;
+		public DateTime? DeletedAt { get; set; }
 	}
 }
-

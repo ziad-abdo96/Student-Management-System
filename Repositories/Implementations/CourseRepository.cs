@@ -49,6 +49,34 @@ namespace FirstProject.Repositories.Implementations
 			return _context.Course.FirstOrDefault(d => d.Id == id);
 		}
 
+		public List<Course> SearchByName(string name)
+		{
+			return _context.Course
+				.Where(c => c.Name.Contains(name))
+				.ToList();
+		}
+
+		public List<Course> GetAllWithDepartments()
+		{
+			return _context.Course
+				.Include(c => c.Department)
+				.ToList();
+		}
+
+		public List<Course> SearchByNameWithDepartments(string name)
+		{
+			return _context.Course
+				.Include(c => c.Department)
+				.Where(c => c.Name.Contains(name))
+				.ToList();
+		}
+
+		public List<Course> GetCoursesByDepartmentId(int departmentId)
+		{
+			return _context.Course
+				.Where(c => c.DepartmentId == departmentId)
+				.ToList();
+		}
 		public void Save()
 		{
 			_context.SaveChanges();

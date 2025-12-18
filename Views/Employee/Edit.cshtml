@@ -1,51 +1,83 @@
 ﻿@model EmpWithDepartListViewModel
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Employee";
 }
 
-<h1>Edit</h1>
+<div class="container mb-4">
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-header bg-dark text-white text-center">
+            <h3>
+                <i class="bi bi-pencil-square"></i> Edit Employee
+            </h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" method="post">
+                <input asp-for="Id" type="hidden" />
 
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control"
+                               placeholder="Enter employee name" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DepartmentId" class="form-label"></label>
+                        <select asp-for="DepartmentId" asp-items="Model.DepartmentList"
+                                class="form-select">
+                            <option value="">-- Select Department --</option>
+                        </select>
+                        <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                    </div>
+                </div>
 
-<form  asp-action="SaveEdit" asp-route-id="@Model.Id" method="post">
-    <div>
-        <label asp-for="Name"></label>
-        <input  asp-for="Name" class="form-control" />
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Salary" class="form-label"></label>
+                        <input asp-for="Salary" type="number" class="form-control"
+                               placeholder="Enter salary" min="0" step="0.01" />
+                        <span asp-validation-for="Salary" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="JobTitle" class="form-label"></label>
+                        <input asp-for="JobTitle" class="form-control"
+                               placeholder="Enter job title" />
+                        <span asp-validation-for="JobTitle" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Address" class="form-label"></label>
+                        <input asp-for="Address" class="form-control"
+                               placeholder="Enter address" />
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                </div>
 
-    </div>
-    <div>
-        <label asp-for="Address"></label>
-        <input asp-for="Address" class="form-control"/>
-    </div>
-    <div>
-        <label asp-for="ImageURL"></label>
-        <input asp-for="ImageURL" class="form-control" />
-    </div>
-    <div>
-        <label asp-for="Salary"></label>
-        <input asp-for="Salary" class="form-control" />
-    </div>
-    <div>
-        <label asp-for="JobTitle"></label>
-        <input asp-for="JobTitle" class="form-control"/>
-    </div>
-    <div>
-        <label asp-for="DepartmentID"></label>
-        <select id="DepartmentID" name="DepartmentID" class="form-control">
-            @foreach (var item in Model.Departments)
-            {
-                @if(item.Id == Model.DepartmentID)
-                {
-                    <option value="@item.Id" selected>@item.Name</option>
-                }
-                else
-                {
-                    <option value="@item.Id" >@item.Name</option>
-                }
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="ImageURL" class="form-label"></label>
+                        <input asp-for="ImageURL" class="form-control"
+                               placeholder="Enter image URL" />
+                        <span asp-validation-for="ImageURL" class="text-danger"></span>
+                    </div>
+                </div>
 
-            }
-            </select>
-
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Update Employee
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-    <input type="submit" value="Save" class="btn btn-success"/>
-</form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

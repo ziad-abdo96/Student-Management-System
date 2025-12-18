@@ -8,7 +8,7 @@ namespace FirstProject.Repositories.Interfaces
 
 		public void Update(Employee Employee);
 
-		public void Delete(int Id);
+		public void Delete(Employee employee);
 
 		public List<Employee> GetAll();
 
@@ -16,6 +16,9 @@ namespace FirstProject.Repositories.Interfaces
 
 		public Employee? GetByIdWithDepartment(int id);
 
+		public List<Employee> GetAllWithDepartments();
+
+		public List<Employee> SearchByNameWithDepartments(string name);
 		public void Save();
 	}
 }

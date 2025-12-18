@@ -29,14 +29,31 @@ namespace FirstProject.Repositories.Implementations
 
 		public List<Trainee> GetAll()
 		{
-			return _context.Trainee.ToList();
+			return _context.Trainee
+				.Where(t => !t.IsDeleted)
+				.ToList();
 		}
 
 		public Trainee? GetById(int id)
 		{
-			return _context.Trainee.FirstOrDefault(d => d.Id == id);
+			return _context.Trainee.FirstOrDefault(t => t.Id == id && !t.IsDeleted);
 		}
 
+		public List<Trainee> GetAllWithDepartments()
+		{
+			return _context.Trainee
+				.Include(t => t.Department)
+				.Where(t => !t.IsDeleted)
+				.ToList();
+		}
+		public List<Trainee> SearchByNameWithDepartments(string search)
+		{
+			return _context.Trainee
+				.Include(x => x.Department)
+				.Where(x => x.Name!.Contains(search))
+				.Where(t => !t.IsDeleted)
+				.ToList();
+		}
 		public void Save()
 		{
 			_context.SaveChanges();
@@ -49,16 +66,19 @@ namespace FirstProject.Repositories.Implementations
 				.Include(x => x.Trainee)
 					.ThenInclude(x => x.Department)
 				.Include(x => x.Course)
-				.FirstOrDefault(x => x.TraineeId == traineeId && x.CourseId == courseId);
+				.FirstOrDefault(cr => cr.TraineeId == traineeId 
+				&& cr.CourseId == courseId
+				&& !cr.Trainee.IsDeleted);
 		}
 
 
 		public List<CrsResult> GetAllResultsForTrainee(int traineeId)
 		{
 			return _context.CrsResult
-				.Include(x => x.Trainee)
-				.Include(x => x.Course)
-				.Where(x => x.TraineeId == traineeId)
+				.Include(cr => cr.Trainee)
+				.Include(cr => cr.Course)
+				.Where(cr => cr.TraineeId == traineeId &&
+					!cr.Trainee.IsDeleted)
 				.ToList();
 		}
 	}

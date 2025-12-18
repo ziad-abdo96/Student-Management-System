@@ -38,6 +38,13 @@ namespace FirstProject.Repositories.Implementations
 			return _context.Department.FirstOrDefault(d => d.Id == id);
 		}
 
+		public List<Department> SearchByName(string search)
+		{
+			return _context.Department
+				.Where(d => d.Name!.Contains(search))
+				.ToList();
+
+		}
 		public void Save()
 		{
 			_context.SaveChanges();

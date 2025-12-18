@@ -19,5 +19,7 @@ namespace FirstProject.Repositories.Interfaces
 		List<CrsResult> GetAllResultsForTrainee(int traineeId);
 
 		public void Save();
+		public List<Trainee> GetAllWithDepartments();
+		public List<Trainee> SearchByNameWithDepartments(string search);
 	}
 }
