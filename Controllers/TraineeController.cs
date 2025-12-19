@@ -54,7 +54,8 @@ namespace FirstProject.Controllers
 				return View(viewModel);
 			}
 
-			viewModel.ImageURL = await _fileService.SaveFileAsync(viewModel.);
+			viewModel.ImageURL = await _fileService.SaveFileAsync(viewModel.ImageFile, "Images/Trainees");
+
 
 			var trainee = MapToTrainee(viewModel);
 
@@ -94,7 +95,7 @@ namespace FirstProject.Controllers
 		///////////////////////////////////////////////////////////////////// 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult Edit(TraineeWithDepartListViewModel viewModel)
+		public async Task<IActionResult> Edit(TraineeWithDepartListViewModel viewModel)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -109,6 +110,8 @@ namespace FirstProject.Controllers
 				TempData["ErrorMessage"] = "Trainee not found.";
 				return RedirectToAction("Index");
 			}
+
+			viewModel.ImageURL = await _fileService.UpdateFileAsync(viewModel.ImageFile, trainee.ImageURL, "Images/Trainee");
 
 			trainee.Name = viewModel.Name;
 			trainee.Address = viewModel.Address;

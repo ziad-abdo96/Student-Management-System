@@ -1,8 +1,6 @@
 ﻿using FirstProject.Models.Entities;
 using FirstProject.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.CodeAnalysis.FlowAnalysis;
-using Microsoft.IdentityModel.Tokens;
 
 namespace FirstProject.Controllers
 {

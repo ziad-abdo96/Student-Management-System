@@ -11,8 +11,10 @@ namespace FirstProject.ViewModel
 		[StringLength(100, MinimumLength = 3, ErrorMessage = "Name must be between 3 and 100 characters")]
 		public string Name { get; set; } = string.Empty;
 
-		[StringLength(500, ErrorMessage = "Image URL cannot exceed 500 characters")]
+		
 		[Display(Name = "Profile Image")]
+		[DataType(DataType.Upload)]
+		public IFormFile? ImageFile { get; set; }
 		public string? ImageURL { get; set; }
 
 		[StringLength(200, ErrorMessage = "Address cannot exceed 200 characters")]
