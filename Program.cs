@@ -3,7 +3,10 @@ using FirstProject.Infrastructure;
 using FirstProject.Models.Entities;
 using FirstProject.Repositories.Implementations;
 using FirstProject.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 
 namespace FirstProject
@@ -16,7 +19,13 @@ namespace FirstProject
 
 
 			// Add services to the container.
-			builder.Services.AddControllersWithViews();
+			builder.Services.AddControllersWithViews(options =>
+			{
+				var policy = new AuthorizationPolicyBuilder()
+									.RequireAuthenticatedUser()
+									.Build();
+				options.Filters.Add(new AuthorizeFilter(policy));
+			});
 			builder.Services.AddSession();//layer for session
 			builder.Services.AddScoped<IFileService, FileService>();
 

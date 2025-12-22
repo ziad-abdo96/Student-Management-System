@@ -12,8 +12,6 @@ namespace FirstProject.Controllers
 		{
 			_departmentRepository = departmentRepository;
 		}
-
-		[Authorize]
 		public IActionResult Index(string? search)
 		{
 			search = search?.Trim();

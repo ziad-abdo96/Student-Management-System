@@ -1,5 +1,6 @@
 ﻿using FirstProject.Models.Entities;
 using FirstProject.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
@@ -17,7 +18,7 @@ namespace FirstProject.Controllers
 			_signInManager = signInManager;
 		}
 
-
+		[AllowAnonymous]
 		[HttpGet]
 		public ActionResult Register()
 		{
@@ -25,6 +26,7 @@ namespace FirstProject.Controllers
 		}
 		
 		[HttpPost]
+		[AllowAnonymous]
 		public async Task<ActionResult> Register(RegisterUserViewModel registerUserVM)
 		{
 			if (ModelState.IsValid)
@@ -69,12 +71,14 @@ namespace FirstProject.Controllers
 			return View("Register", registerUserVM);
 		}
 
+		[AllowAnonymous]
 		[HttpGet]
 		public IActionResult Login()
 		{
 			return View("Login");
 		}
 
+		[AllowAnonymous]
 		[HttpPost]
 		public async Task<IActionResult> Login(LoginUserViewModel userViewModel)
 		{
