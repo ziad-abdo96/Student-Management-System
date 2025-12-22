@@ -1,7 +1,4 @@
-﻿
-using System.Formats.Asn1;
-
-namespace FirstProject.Services
+﻿namespace FirstProject.Infrastructure
 {
 	public class FileService : IFileService
 	{

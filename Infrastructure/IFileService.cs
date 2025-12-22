@@ -1,4 +1,4 @@
-﻿namespace FirstProject.Services
+﻿namespace FirstProject.Infrastructure
 {
 	public interface IFileService
 	{

@@ -1,8 +1,8 @@
 using FirstProject.Data;
+using FirstProject.Infrastructure;
 using FirstProject.Models.Entities;
 using FirstProject.Repositories.Implementations;
 using FirstProject.Repositories.Interfaces;
-using FirstProject.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
