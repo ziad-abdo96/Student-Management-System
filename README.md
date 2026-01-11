@@ -125,8 +125,3 @@ Junior Full Stack Developer (.NET)
 
 ---
 
-* a **shorter version**
-* a **job-ready README**
-* or **CV bullet points from this project**
-
-Just tell me 💪
