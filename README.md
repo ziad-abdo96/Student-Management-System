@@ -121,7 +121,7 @@ Built to practice real-world **ASP.NET Core MVC** development with:
 ## 👤 Author
 
 **Ziad Abdo**
-Junior Backend Developer (.NET)
+Junior Full Stack Developer (.NET)
 
 ---
 
